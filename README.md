@@ -77,7 +77,9 @@ The examples use the files in `samples/`, so they run from the repo root.
 ### (a) Open tickets asking for a refund
 
 ```bash
-jq -c '.[] | select(.status == "open")' samples/tickets.json | jevq "the customer is asking for a refund" | jq -c '{id, subject}'
+jq -c '.[] | select(.status == "open")' samples/tickets.json |
+  jevq "the customer is asking for a refund" |
+  jq -c '{id, subject}'
 ```
 
 jq keeps the open tickets, jevq keeps the ones asking for money back, and the
@@ -86,7 +88,8 @@ last jq prints one `{"id":...,"subject":...}` line per match.
 ### (b) Network timeouts versus code bugs
 
 ```bash
-jq -c 'select(.level == "error")' samples/app.ndjson | jevq "this error is caused by a network timeout, not a bug in our code"
+jq -c 'select(.level == "error")' samples/app.ndjson |
+  jevq "this error is caused by a network timeout, not a bug in our code"
 ```
 
 Of the error lines in the log, prints the ones that look like a timeout
@@ -95,7 +98,9 @@ Of the error lines in the log, prints the ones that look like a timeout
 ### (c) Dev tools in runtime dependencies
 
 ```bash
-jq -c '.dependencies | to_entries[]' samples/package.json | jevq "this npm package is a test, lint or build tool, not a runtime library" | jq -r .key
+jq -c '.dependencies | to_entries[]' samples/package.json |
+  jevq "this npm package is a test, lint or build tool, not a runtime library" |
+  jq -r .key
 ```
 
 Prints one package name per line for dependencies that belong in
@@ -104,7 +109,10 @@ Prints one package name per line for dependencies that belong in
 ### (d) Rank GitHub issues with `--score`
 
 ```bash
-gh api 'repos/itchyny/gojq/issues?state=open&per_page=100' | jq -c '.[] | select(.pull_request | not) | {number, title, body}' | jevq --score "reports a crash or wrong output, not a feature request" | jq -rs 'sort_by(-.score) | .[:5][] | .value | "\(.number)\t\(.title)"'
+gh api 'repos/itchyny/gojq/issues?state=open&per_page=100' |
+  jq -c '.[] | select(.pull_request | not) | {number, title, body}' |
+  jevq --score "reports a crash or wrong output, not a feature request" |
+  jq -rs 'sort_by(-.score) | .[:5][] | .value | "\(.number)\t\(.title)"'
 ```
 
 Scores every open issue (pull requests dropped), then prints the five most
@@ -112,13 +120,21 @@ bug-like as `number<TAB>title`. To try it offline without `gh`, swap the first
 stage for the saved copy:
 
 ```bash
-jq -c '.[] | select(.pull_request | not) | {number, title, body}' samples/gh-issues.json | jevq --score "reports a crash or wrong output, not a feature request" | jq -rs 'sort_by(-.score) | .[:5][] | .value | "\(.number)\t\(.title)"'
+jq -c '.[] | select(.pull_request | not) | {number, title, body}' samples/gh-issues.json |
+  jevq --score "reports a crash or wrong output, not a feature request" |
+  jq -rs 'sort_by(-.score) | .[:5][] | .value | "\(.number)\t\(.title)"'
 ```
 
 ### (e) Failed logins, cut at 0.7
 
 ```bash
-printf '%s\n' '{"level":"warn","msg":"failed login for alice from 10.0.0.5"}' '{"level":"info","msg":"user bob logged in"}' '{"level":"warn","msg":"invalid password for root from 203.0.113.9"}' '{"level":"info","msg":"cache warmed in 120ms"}' | jevq --score "this log line records a failed login" | jq -c 'select(.score >= 0.7) | .value'
+printf '%s\n' \
+    '{"level":"warn","msg":"failed login for alice from 10.0.0.5"}' \
+    '{"level":"info","msg":"user bob logged in"}' \
+    '{"level":"warn","msg":"invalid password for root from 203.0.113.9"}' \
+    '{"level":"info","msg":"cache warmed in 120ms"}' |
+  jevq --score "this log line records a failed login" |
+  jq -c 'select(.score >= 0.7) | .value'
 ```
 
 `--score` wraps each line with its score and jq applies the cutoff, printing
@@ -127,7 +143,8 @@ the original log objects for the failed attempts.
 ### (f) Send only some fields with `-f`
 
 ```bash
-jq -c '.[] | select(.status == "open")' samples/tickets.json | jevq -f subject,body "the customer is asking for a refund"
+jq -c '.[] | select(.status == "open")' samples/tickets.json |
+  jevq -f subject,body "the customer is asking for a refund"
 ```
 
 Only `subject` and `body` go to Jev, so customer names and other keys stay
@@ -137,7 +154,8 @@ full ticket. Non-object values are always sent as `{"value": ...}`.
 ### (g) Tighten or loosen with `-t`
 
 ```bash
-jq -c '.[]' samples/tickets.json | jevq -t 0.8 "the customer is asking for a refund"
+jq -c '.[]' samples/tickets.json |
+  jevq -t 0.8 "the customer is asking for a refund"
 ```
 
 `-t 0.8` keeps only confident matches; a lower value such as `-t 0.3` keeps
@@ -145,7 +163,10 @@ borderline ones too. To choose a threshold, look at the score distribution
 first:
 
 ```bash
-jq -c '.[]' samples/tickets.json | jevq --score "the customer is asking for a refund" | jq -r .score | sort -n
+jq -c '.[]' samples/tickets.json |
+  jevq --score "the customer is asking for a refund" |
+  jq -r .score |
+  sort -n
 ```
 
 ### (h) Dry run with `--pass`
@@ -154,19 +175,25 @@ jq -c '.[]' samples/tickets.json | jevq --score "the customer is asking for a re
 Use it to check what a pipe would send before paying for it:
 
 ```bash
-jq -c '.[] | select(.status == "open")' samples/tickets.json | jevq --pass | wc -l
+jq -c '.[] | select(.status == "open")' samples/tickets.json |
+  jevq --pass |
+  wc -l
 ```
 
 prints how many rows the real run would ask about. It is also an identity:
 
 ```bash
-f=$(mktemp) && jq -c '.[]' samples/tickets.json > "$f" && jevq --pass < "$f" | cmp - "$f" && echo identical
+f=$(mktemp) && jq -c '.[]' samples/tickets.json > "$f" &&
+  jevq --pass < "$f" |
+  cmp - "$f" &&
+  echo identical
 ```
 
 ### (i) Counts and model with `-v`
 
 ```bash
-jq -c '.[] | select(.status == "open")' samples/tickets.json | jevq -v "the customer is asking for a refund" > refunds.jsonl
+jq -c '.[] | select(.status == "open")' samples/tickets.json |
+  jevq -v "the customer is asking for a refund" > refunds.jsonl
 ```
 
 On success jevq writes nothing to stderr. With `-v` it adds, at the end of
