@@ -38,6 +38,7 @@ Reads JSON values from stdin (JSONL from `jq -c`). One System One call per value
 | `-t, --threshold N` | Cutoff in `[0,1]`. Default `0.5` or `$JEV_THRESHOLD` |
 | `-f, --fields a,b` | Slim **state** only. Output is still the full original value |
 | `--model NAME` | Default `jev-1.13.0` (pinned) or `$JEV_MODEL` |
+| `-v, --verbose` | Print end-of-run counts (read/emitted) and the answering model to stderr |
 | `-h, --help` | Usage |
 
 Env: `TYPESAFE_API_KEY` (required except `--pass`), `JEV_MODEL`, `JEV_BASE_URL`, `JEV_THRESHOLD`.
@@ -68,8 +69,7 @@ Default and `--pass`: write the **original value bytes** plus a newline. Do not 
 
 JSONL in, JSONL out. Input order. Do not slurp into an array.
 
-Stderr only: counts and errors.
-After the run, stderr logs the answering model reported in the response's model field.
+Stderr is silent on success by default. Errors (bad input, API failures, missing key) always go to stderr with a nonzero exit. -v/--verbose adds the end-of-run counts and the answering model to stderr.
 
 ## Layout
 
