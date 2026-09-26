@@ -37,7 +37,7 @@ Reads JSON values from stdin (JSONL from `jq -c`). One System One call per value
 | `--pass` | Emit every input value unchanged. No API call. No key required |
 | `-t, --threshold N` | Cutoff in `[0,1]`. Default `0.5` or `$JEV_THRESHOLD` |
 | `-f, --fields a,b` | Slim **state** only. Output is still the full original value |
-| `--model NAME` | Default `jev-latest` or `$JEV_MODEL` |
+| `--model NAME` | Default `jev-1.13.0` (pinned) or `$JEV_MODEL` |
 | `-h, --help` | Usage |
 
 Env: `TYPESAFE_API_KEY` (required except `--pass`), `JEV_MODEL`, `JEV_BASE_URL`, `JEV_THRESHOLD`.
@@ -50,7 +50,7 @@ QUESTION is a yes/no claim about the current object, not a search query.
 
 ```json
 {
-  "model": "jev-latest",
+  "model": "jev-1.13.0",
   "state": { "...stdin object or --fields projection..." },
   "questions": {
     "q": { "type": "noul", "instructions": "<QUESTION>" }
@@ -69,6 +69,7 @@ Default and `--pass`: write the **original value bytes** plus a newline. Do not 
 JSONL in, JSONL out. Input order. Do not slurp into an array.
 
 Stderr only: counts and errors.
+After the run, stderr logs the answering model reported in the response's model field.
 
 ## Layout
 
