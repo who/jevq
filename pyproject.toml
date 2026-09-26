@@ -1,9 +1,29 @@
 [project]
 name = "jevq"
-version = "0.1.0"
+dynamic = ["version"]
 description = "jq-compatible System One noul filter"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { text = "MIT" }
+authors = [{ name = "who", email = "githubwho@gmail.com" }]
+keywords = ["jq", "json", "jsonl", "cli", "filter", "llm", "typesafe"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+    "Topic :: Text Processing :: Filters",
+]
 requires-python = ">=3.12"
 dependencies = ["httpx>=0.27"]
+
+[project.urls]
+Homepage = "https://github.com/who/jevq"
+Repository = "https://github.com/who/jevq"
+Issues = "https://github.com/who/jevq/issues"
 
 [project.scripts]
 jevq = "jevq.cli:main"
@@ -12,8 +32,28 @@ jevq = "jevq.cli:main"
 dev = ["pytest>=8"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+fallback_version = "0.0.0"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/jevq", "README.md", "LICENSE", "CHANGELOG.md", "docs", "pyproject.toml"]
+exclude = [
+    ".beads",
+    "prd",
+    ".claude",
+    ".grok",
+    ".codex",
+    ".cursor",
+    ".ortusrc",
+    "AGENTS.md",
+    "CLAUDE.md",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/jevq"]

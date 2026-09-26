@@ -9,7 +9,8 @@ QUESTION is a yes/no claim about the current value, not a search query.
 ## Install
 
 ```bash
-uv tool install --editable .
+uv tool install jevq            # from PyPI (or: pipx install jevq)
+uv tool install --editable .    # from a source checkout
 export TYPESAFE_API_KEY=...
 ```
 
