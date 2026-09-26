@@ -106,6 +106,11 @@ def emit(stdout: BinaryIO, raw: bytes) -> None:
     stdout.flush()
 
 
+def format_score_line(score: float, raw: bytes) -> bytes:
+    """The only wrap: compact ``{"score":<noul>,"value":<raw>}`` plus newline."""
+    return b'{"score":' + json.dumps(float(score)).encode() + b',"value":' + raw + b"}\n"
+
+
 def report(stderr: TextIO, read: int, emitted: int) -> None:
     stderr.write(f"jevq: read {read}, emitted {emitted}\n")
 
@@ -186,15 +191,13 @@ def run(
     except UsageError as exc:
         stderr.write(f"jevq: {exc}\n")
         return 2
-    if args.score:
-        stderr.write("jevq: not implemented yet\n")
-        return 1
-
     model = args.model or env.get("JEV_MODEL") or DEFAULT_MODEL
     url = env.get("JEV_BASE_URL") or DEFAULT_URL
     client = (client_factory or _default_client_factory)(api_key, model, url)
     try:
-        return _run_filter(client, args.question, threshold, fields, stdin, stdout, stderr)
+        return _run_filter(
+            client, args.question, threshold, fields, stdin, stdout, stderr, score_mode=args.score
+        )
     finally:
         close = getattr(client, "close", None)
         if close is not None:
@@ -209,6 +212,8 @@ def _run_filter(
     stdin: BinaryIO,
     stdout: BinaryIO,
     stderr: TextIO,
+    *,
+    score_mode: bool = False,
 ) -> int:
     read = emitted = 0
     try:
@@ -220,7 +225,11 @@ def _run_filter(
                 stderr.write(f"jevq: line {line_no}: API error: {exc}\n")
                 report(stderr, read, emitted)
                 return 1
-            if score >= threshold:
+            if score_mode:
+                stdout.write(format_score_line(score, raw))
+                stdout.flush()
+                emitted += 1
+            elif score >= threshold:
                 emit(stdout, raw)
                 emitted += 1
     except InputError as exc:
