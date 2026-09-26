@@ -6,9 +6,9 @@
 Jev (a TypeSafe System One model) a yes/no question about each, and passes through the yeses.
 QUESTION is a yes/no claim about the current value, not a search query.
 
-![jevq demo: filtering support tickets to open refund requests](docs/assets/jevq-demo.gif)
+![jevq demo: filtering support tickets to open refund requests](https://raw.githubusercontent.com/who/jevq/main/docs/assets/jevq-demo.gif)
 
-Video: [docs/assets/jevq-demo.mp4](docs/assets/jevq-demo.mp4)
+Video: [docs/assets/jevq-demo.mp4](https://github.com/who/jevq/blob/main/docs/assets/jevq-demo.mp4)
 
 ## Install
 
@@ -72,9 +72,9 @@ gh api 'repos/itchyny/gojq/issues?state=open&per_page=100' |
 
 The five most bug-like open issues, as `number<TAB>title`.
 
-More examples: [docs/examples.md](docs/examples.md)
+More examples: [docs/examples.md](https://github.com/who/jevq/blob/main/docs/examples.md)
 
-Full contract (output rules, exit codes, HTTP, retries): [docs/jevq.md](docs/jevq.md)
+Full contract (output rules, exit codes, HTTP, retries): [docs/jevq.md](https://github.com/who/jevq/blob/main/docs/jevq.md)
 
 ## Testing
 
