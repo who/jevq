@@ -53,6 +53,7 @@ exclude = [
     ".ortusrc",
     "AGENTS.md",
     "CLAUDE.md",
+    "docs/assets",
 ]
 
 [tool.hatch.build.targets.wheel]

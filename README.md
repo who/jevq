@@ -6,6 +6,10 @@
 Jev (a TypeSafe System One model) a yes/no question about each, and passes through the yeses.
 QUESTION is a yes/no claim about the current value, not a search query.
 
+![jevq demo: filtering support tickets to open refund requests](docs/assets/jevq-demo.gif)
+
+Video: [docs/assets/jevq-demo.mp4](docs/assets/jevq-demo.mp4)
+
 ## Install
 
 ```bash
