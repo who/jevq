@@ -1,5 +1,118 @@
 # jevq
 
+jevq filters JSON values with a TypeSafe System One `noul` score. It reads
+JSONL on stdin (the output of `jq -c`), makes one System One call per value,
+and writes JSONL on stdout.
+
+## Usage
+
+```
+jevq [options] QUESTION
+```
+
+QUESTION is a yes/no claim about the current value, for example
+`"the customer is asking for a refund"`. It is not a search query. It is
+required unless `--pass` is given.
+
+## Flags
+
+| Flag | Meaning |
+| --- | --- |
+| `QUESTION` | Yes/no claim about the current value. |
+| `--score` | Emit every value as `{"score":<noul>,"value":<original>}`. No threshold is applied. |
+| `--pass` | Emit every input value unchanged. No API call and no key required. Cannot be combined with `--score`. |
+| `-t N`, `--threshold N` | Cutoff in [0, 1]. A value is kept when its score is at least N. Default 0.5 or `$JEV_THRESHOLD`. |
+| `-f a,b`, `--fields a,b` | Send only these top-level keys to the model. Output is still the full original value. |
+| `--model NAME` | Model to ask. Default `jev-1.13.0` (pinned) or `$JEV_MODEL`. |
+| `-h`, `--help` | Print help and exit. |
+
+## Environment
+
+| Variable | Meaning |
+| --- | --- |
+| `TYPESAFE_API_KEY` | API key, sent as `Authorization: Bearer <key>`. Required except with `--pass`. |
+| `JEV_MODEL` | Default model when `--model` is not given. Default `jev-1.13.0`. |
+| `JEV_BASE_URL` | Endpoint URL. Default `https://api.typesafe.ai/v1/systemone`. |
+| `JEV_THRESHOLD` | Default threshold when `-t` is not given. Default `0.5`. |
+
+## State sent to the model
+
+- An object is sent as it is.
+- With `--fields`, an object is cut down to the listed keys that it has. A
+  missing key is skipped, not an error.
+- Anything that is not an object (a string, number, array, `true`, `false` or
+  `null`) is sent wrapped as `{"value": <value>}`. `--fields` does not apply
+  to it.
+
+`--fields` only changes what the model sees. stdout always carries the input
+line, so `jq -c '.dependencies | to_entries[]' package.json | jevq -f key ...`
+asks about the package name alone and still emits `{"key":...,"value":...}`.
+
+## HTTP request
+
+One `POST` to `$JEV_BASE_URL` (default
+`https://api.typesafe.ai/v1/systemone`) per input value, with a 30 second
+timeout and a `User-Agent: jevq/<version>` header. The body is:
+
+```json
+{
+  "model": "jev-1.13.0",
+  "state": {"id": 7, "subject": "Refund please"},
+  "questions": {"q": {"type": "noul", "instructions": "the customer is asking for a refund"}}
+}
+```
+
+The score is read from `answers.q.noul` in the response and must be a finite
+number. A response that is not JSON, lacks `answers.q.noul`, or holds a
+non-number there is an API error. The top-level `model` field of the response,
+when present, is recorded for the stderr report.
+
+Calls run one at a time, in input order. There is no caching.
+
+## Retries
+
+Transport errors, HTTP 429 and HTTP 5xx are retried, up to 4 attempts in all.
+The wait before each retry is the `Retry-After` header in seconds, capped at
+10 s, or when that header is missing or unusable, 0.5 s, 1 s, then 2 s. Any
+other non-2xx status fails at once. An API failure is never treated as a "no".
+
+## Output
+
+- Default mode: each value whose score is at least the threshold is written
+  exactly as it was read (whitespace around the line trimmed), one per line.
+- `--score`: every value is written as the compact line
+  `{"score":<noul>,"value":<original>}`. This is the only way jevq wraps a
+  value.
+- `--pass`: every value is written unchanged.
+
+Blank input lines are skipped. Output is flushed after every line, so jevq
+works in a streaming pipe, and a downstream reader that closes early (such as
+`| head -1`) ends jevq quietly with status 0.
+
+When it finishes, including after an error, jevq writes a summary to stderr:
+
+```
+jevq: read N, emitted M
+```
+
+After at least one successful API response it also writes the model or models
+that answered, taken from the responses:
+
+```
+jevq: model: jev-1.13.0
+```
+
+## Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| 0 | Success. |
+| 1 | Runtime failure: an API error (after retries) or an input line that is not valid JSON. jevq stops at that line; values already emitted stay emitted. |
+| 2 | Usage error: bad flags, missing QUESTION, an invalid threshold or `--fields` value, or `TYPESAFE_API_KEY` not set. Reported before stdin is read. |
+
+Errors go to stderr prefixed `jevq:`, for example
+`jevq: line 3: invalid JSON: ...` or `jevq: line 3: API error: HTTP 401: ...`.
+
 ## Reinstalling the local tool
 
 `uv tool install --editable .` can reuse a cached build or an existing tool
