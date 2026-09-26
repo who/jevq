@@ -12,7 +12,7 @@ import httpx
 from jevq import __version__
 
 DEFAULT_URL = "https://api.typesafe.ai/v1/systemone"
-DEFAULT_MODEL = "jev-latest"
+DEFAULT_MODEL = "jev-1.13.0"
 
 _MAX_RETRY_AFTER = 10.0
 _BASE_BACKOFF = 0.5
@@ -59,6 +59,8 @@ class SystemOneClient:
         self.url = url
         self.max_retries = max_retries
         self._sleep = sleep
+        self.responses = 0
+        self.answered_models: list[str] = []
         self._http = httpx.Client(
             timeout=timeout,
             transport=transport,
@@ -87,7 +89,9 @@ class SystemOneClient:
                 last_error = f"transport error: {type(exc).__name__}"
             else:
                 if resp.is_success:
-                    return _parse_noul(resp)
+                    score = _parse_noul(resp)
+                    self._record_model(resp)
+                    return score
                 if not _is_retryable(resp.status_code):
                     raise JevqAPIError(f"HTTP {resp.status_code}: {resp.text[:200]}")
                 last_error = f"HTTP {resp.status_code}"
@@ -97,6 +101,13 @@ class SystemOneClient:
                     delay = _BASE_BACKOFF * 2**attempt
                 self._sleep(delay)
         raise JevqAPIError(f"{last_error} after {attempts} attempts")
+
+    def _record_model(self, resp: httpx.Response) -> None:
+        """Note the answering model from the response's top-level ``model``."""
+        self.responses += 1
+        model = resp.json().get("model")
+        if isinstance(model, str) and model and model not in self.answered_models:
+            self.answered_models.append(model)
 
     def close(self) -> None:
         self._http.close()

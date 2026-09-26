@@ -115,6 +115,14 @@ def report(stderr: TextIO, read: int, emitted: int) -> None:
     stderr.write(f"jevq: read {read}, emitted {emitted}\n")
 
 
+def report_model(stderr: TextIO, client: object) -> None:
+    """Name the model(s) that answered, once any System One response succeeded."""
+    models = getattr(client, "answered_models", None)
+    if models is None or not getattr(client, "responses", 0):
+        return
+    stderr.write(f"jevq: model: {', '.join(models) if models else 'not reported'}\n")
+
+
 class UsageError(Exception):
     """Bad flags, environment or missing key; exit 2 before reading stdin."""
 
@@ -224,6 +232,7 @@ def _run_filter(
             except JevqAPIError as exc:
                 stderr.write(f"jevq: line {line_no}: API error: {exc}\n")
                 report(stderr, read, emitted)
+                report_model(stderr, client)
                 return 1
             if score_mode:
                 stdout.write(format_score_line(score, raw))
@@ -235,8 +244,10 @@ def _run_filter(
     except InputError as exc:
         stderr.write(f"jevq: {exc}\n")
         report(stderr, read, emitted)
+        report_model(stderr, client)
         return 1
     report(stderr, read, emitted)
+    report_model(stderr, client)
     return 0
 
 
