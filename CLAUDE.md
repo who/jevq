@@ -75,3 +75,27 @@ _Add a brief overview of your project architecture_
 ## Conventions & Patterns
 
 _Add your project-specific conventions here_
+
+<!-- BEGIN ortus block=pointer schema=1 generated-by=ortus@0.4.1.dev103+ga5d6da2 -->
+## Ortus session rules
+
+Managed by Ortus 0.4.1.dev103+ga5d6da2. Edit outside the markers freely — `ortus init`
+rewrites only what sits between them, and `ortus check` reports drift.
+
+`AGENTS.md` in this repo is the session contract: read it first, and follow its
+issue-authoring, orchestrator, and session-close sections rather than restating
+them here.
+
+The short version: claim with `bd update <id> --status=in_progress`, do exactly that one issue,
+close it with `bd close <id> --reason "..."`, and push before calling the
+session done.
+
+### CodeGraph
+
+CodeGraph is a prerequisite of this repo, not an enhancement. Ask it
+before grep, find, or opening files: the `codegraph_explore` MCP tool
+when it is registered, `codegraph explore "<symbols or question>"`
+otherwise. A missing CLI, index, or MCP capability is fatal under
+`codegraph = "required"` — stop and report the missing prerequisite
+instead of falling back to a slower search.
+<!-- END ortus block=pointer -->
