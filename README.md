@@ -1,5 +1,7 @@
 # jevq
 
+[![CI](https://github.com/who/jevq/actions/workflows/ci.yml/badge.svg)](https://github.com/who/jevq/actions/workflows/ci.yml)
+
 `jq | jevq | jq`. jq handles structure: it selects, reshapes and prints.
 jevq handles judgement: it reads one JSON value per line from stdin, asks a
 TypeSafe System One model a yes/no question about each value, and passes
