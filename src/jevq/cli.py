@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
-from collections.abc import Iterator, Mapping
-from typing import Any, BinaryIO, TextIO
+from collections.abc import Callable, Iterator, Mapping
+from typing import Any, BinaryIO, Protocol, TextIO
+
+from jevq.client import DEFAULT_MODEL, DEFAULT_URL, JevqAPIError, SystemOneClient
 
 DESCRIPTION = """\
 Filter JSON values from stdin (JSONL from `jq -c`) with a System One noul.
@@ -107,12 +110,61 @@ def report(stderr: TextIO, read: int, emitted: int) -> None:
     stderr.write(f"jevq: read {read}, emitted {emitted}\n")
 
 
+class UsageError(Exception):
+    """Bad flags, environment or missing key; exit 2 before reading stdin."""
+
+
+class NoulClient(Protocol):
+    def noul(self, state: Any, question: str) -> float: ...
+
+
+ClientFactory = Callable[[str, str, str], NoulClient]
+
+
+def resolve_threshold(arg: str | None, env: Mapping[str, str]) -> float:
+    raw = arg if arg is not None else (env.get("JEV_THRESHOLD") or None)
+    if raw is None:
+        return 0.5
+    try:
+        value = float(raw)
+    except ValueError:
+        value = math.nan
+    if not math.isfinite(value) or not 0.0 <= value <= 1.0:
+        raise UsageError("threshold must be a number in [0, 1]")
+    return value
+
+
+def parse_fields(arg: str | None) -> list[str] | None:
+    if arg is None:
+        return None
+    names = [name.strip() for name in arg.split(",")]
+    names = [name for name in names if name]
+    if not names:
+        raise UsageError("--fields needs at least one key name")
+    return names
+
+
+def build_state(value: Any, fields: list[str] | None) -> Any:
+    """The state sent to System One; emitted output is always the raw line."""
+    if not isinstance(value, dict):
+        return {"value": value}
+    if fields is None:
+        return value
+    return {k: value[k] for k in fields if k in value}
+
+
+def _default_client_factory(api_key: str, model: str, url: str) -> NoulClient:
+    return SystemOneClient(api_key, model, url)
+
+
 def run(
     argv: list[str] | None,
     stdin: BinaryIO,
     stdout: BinaryIO,
     stderr: TextIO,
     env: Mapping[str, str],
+    *,
+    client_factory: ClientFactory | None = None,
 ) -> int:
     parser = build_parser()
     try:
@@ -120,13 +172,66 @@ def run(
     except SystemExit as exc:
         code = exc.code
         return code if isinstance(code, int) else (0 if code is None else 2)
-    if not args.pass_ and not (args.question or "").strip():
+    if args.pass_:
+        return _run_pass(stdin, stdout, stderr)
+    if not (args.question or "").strip():
         stderr.write("jevq: QUESTION is required unless --pass\n")
         return 2
-    if not args.pass_:
+    try:
+        threshold = resolve_threshold(args.threshold, env)
+        fields = parse_fields(args.fields)
+        api_key = (env.get("TYPESAFE_API_KEY") or "").strip()
+        if not api_key:
+            raise UsageError("TYPESAFE_API_KEY is not set")
+    except UsageError as exc:
+        stderr.write(f"jevq: {exc}\n")
+        return 2
+    if args.score:
         stderr.write("jevq: not implemented yet\n")
         return 1
 
+    model = args.model or env.get("JEV_MODEL") or DEFAULT_MODEL
+    url = env.get("JEV_BASE_URL") or DEFAULT_URL
+    client = (client_factory or _default_client_factory)(api_key, model, url)
+    try:
+        return _run_filter(client, args.question, threshold, fields, stdin, stdout, stderr)
+    finally:
+        close = getattr(client, "close", None)
+        if close is not None:
+            close()
+
+
+def _run_filter(
+    client: NoulClient,
+    question: str,
+    threshold: float,
+    fields: list[str] | None,
+    stdin: BinaryIO,
+    stdout: BinaryIO,
+    stderr: TextIO,
+) -> int:
+    read = emitted = 0
+    try:
+        for line_no, raw, value in iter_values(stdin):
+            read += 1
+            try:
+                score = client.noul(build_state(value, fields), question)
+            except JevqAPIError as exc:
+                stderr.write(f"jevq: line {line_no}: API error: {exc}\n")
+                report(stderr, read, emitted)
+                return 1
+            if score >= threshold:
+                emit(stdout, raw)
+                emitted += 1
+    except InputError as exc:
+        stderr.write(f"jevq: {exc}\n")
+        report(stderr, read, emitted)
+        return 1
+    report(stderr, read, emitted)
+    return 0
+
+
+def _run_pass(stdin: BinaryIO, stdout: BinaryIO, stderr: TextIO) -> int:
     read = emitted = 0
     try:
         for _line_no, raw, _value in iter_values(stdin):
