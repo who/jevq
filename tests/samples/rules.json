@@ -1,0 +1,20 @@
+{
+  "asking for a refund": [
+    {"pattern": "refund|money back", "noul": 0.92},
+    {"pattern": "partial credit", "noul": 0.62}
+  ],
+  "network timeout": [
+    {"pattern": "ETIMEDOUT|timed out|deadline exceeded", "noul": 0.91}
+  ],
+  "test, lint or build tool": [
+    {"pattern": "\"key\": \"(jest|eslint|webpack|typescript|prettier)\"", "noul": 0.95}
+  ],
+  "crash or wrong output": [
+    {"pattern": "segfault", "noul": 0.97},
+    {"pattern": "panics", "noul": 0.93},
+    {"pattern": "wrong total", "noul": 0.88},
+    {"pattern": "crashes on startup", "noul": 0.84},
+    {"pattern": "off by one", "noul": 0.79},
+    {"pattern": "incorrect timezone", "noul": 0.72}
+  ]
+}

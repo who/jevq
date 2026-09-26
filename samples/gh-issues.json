@@ -1,0 +1,228 @@
+[
+  {
+    "number": 201,
+    "title": "Segfault when parsing an empty config file",
+    "body": "Running `widgetctl apply` with an empty widget.toml ends in a segfault (exit 139).",
+    "state": "open",
+    "labels": [
+      {
+        "name": "bug"
+      }
+    ],
+    "user": {
+      "login": "sample-user-1"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/201"
+  },
+  {
+    "number": 202,
+    "title": "Fix segfault in config parser",
+    "body": "Guards against empty input. Closes #201.",
+    "state": "open",
+    "labels": [],
+    "user": {
+      "login": "sample-user-2"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/pull/202",
+    "pull_request": {
+      "url": "https://api.github.com/repos/example-org/widgetctl/pulls/202"
+    }
+  },
+  {
+    "number": 203,
+    "title": "Feature request: YAML output",
+    "body": "Please add `--output yaml` next to json and table.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "enhancement"
+      }
+    ],
+    "user": {
+      "login": "sample-user-3"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/203"
+  },
+  {
+    "number": 204,
+    "title": "CLI panics on non-ASCII filenames",
+    "body": "`widgetctl sync ./données` panics with 'byte index is not a char boundary'.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "bug"
+      }
+    ],
+    "user": {
+      "login": "sample-user-4"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/204"
+  },
+  {
+    "number": 205,
+    "title": "Report shows wrong total for multi-currency orders",
+    "body": "The summary line prints a wrong total: EUR and USD amounts are added without conversion.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "bug"
+      }
+    ],
+    "user": {
+      "login": "sample-user-5"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/205"
+  },
+  {
+    "number": 206,
+    "title": "Add a --quiet flag",
+    "body": "Scripts would like to suppress the progress bar.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "enhancement"
+      }
+    ],
+    "user": {
+      "login": "sample-user-6"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/206"
+  },
+  {
+    "number": 207,
+    "title": "Add --quiet flag",
+    "body": "Implements #206.",
+    "state": "open",
+    "labels": [],
+    "user": {
+      "login": "sample-user-6"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/pull/207",
+    "pull_request": {
+      "url": "https://api.github.com/repos/example-org/widgetctl/pulls/207"
+    }
+  },
+  {
+    "number": 208,
+    "title": "Crashes on startup with Python 3.13",
+    "body": "The plugin loader crashes on startup under 3.13 with an ImportError.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "bug"
+      }
+    ],
+    "user": {
+      "login": "sample-user-7"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/208"
+  },
+  {
+    "number": 209,
+    "title": "Pagination skips the last item",
+    "body": "With --page-size 10 the 10th widget never shows; looks like an off by one.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "bug"
+      }
+    ],
+    "user": {
+      "login": "sample-user-8"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/209"
+  },
+  {
+    "number": 210,
+    "title": "Support Windows paths",
+    "body": "Backslash paths are not accepted in --config.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "enhancement"
+      }
+    ],
+    "user": {
+      "login": "sample-user-9"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/210"
+  },
+  {
+    "number": 211,
+    "title": "Timestamps shown in incorrect timezone",
+    "body": "Times in `widgetctl log` use an incorrect timezone offset when TZ is unset.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "bug"
+      }
+    ],
+    "user": {
+      "login": "sample-user-10"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/211"
+  },
+  {
+    "number": 212,
+    "title": "Docs: clarify install steps",
+    "body": "The README skips the step that sets up shell completion.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "docs"
+      }
+    ],
+    "user": {
+      "login": "sample-user-11"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/212"
+  },
+  {
+    "number": 213,
+    "title": "Bump dependencies",
+    "body": "Routine dependency updates.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "chore"
+      }
+    ],
+    "user": {
+      "login": "sample-user-12"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/pull/213",
+    "pull_request": {
+      "url": "https://api.github.com/repos/example-org/widgetctl/pulls/213"
+    }
+  },
+  {
+    "number": 214,
+    "title": "Would be nice: colored diff output",
+    "body": "Coloring added and removed lines in `widgetctl diff` would help a lot.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "enhancement"
+      }
+    ],
+    "user": {
+      "login": "sample-user-13"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/214"
+  },
+  {
+    "number": 215,
+    "title": "Dark theme for the HTML report",
+    "body": "The HTML report is very bright; a dark theme option would be welcome.",
+    "state": "open",
+    "labels": [
+      {
+        "name": "enhancement"
+      }
+    ],
+    "user": {
+      "login": "sample-user-14"
+    },
+    "html_url": "https://github.com/example-org/widgetctl/issues/215"
+  }
+]

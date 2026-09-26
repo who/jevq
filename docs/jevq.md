@@ -139,3 +139,35 @@ Flags:
 
 The script honours `UV_TOOL_DIR` and `UV_TOOL_BIN_DIR`, so you can install
 into a scratch location without touching your real global tools.
+
+## Sample pipes
+
+`samples/` holds invented data for four realistic `jq | jevq | jq` pipes: stock
+jq picks or reshapes values, jevq judges each one, and jq post-processes the
+survivors. Run them from the repo root:
+
+```bash
+jq -c '.[] | select(.status == "open")' samples/tickets.json | jevq "the customer is asking for a refund" | jq -c '{id, subject}'
+jq -c 'select(.level == "error")' samples/app.ndjson | jevq "this error is caused by a network timeout, not a bug in our code"
+jq -c '.dependencies | to_entries[]' samples/package.json | jevq "this npm package is a test, lint or build tool, not a runtime library" | jq -r '.key'
+jq -c '.[] | select(.pull_request | not) | {number, title, body}' samples/gh-issues.json | jevq --score "reports a crash or wrong output, not a feature request" | jq -rs 'sort_by(-.score) | .[:5][] | .value | "\(.number)\t\(.title)"'
+```
+
+`tests/samples/run.sh` runs these pipes end to end, plus checks for `--fields`,
+`--threshold`, `--pass`, one request per value, and a missing key. It starts a
+deterministic fake System One (`tests/samples/fake_systemone.py`, scored by
+`tests/samples/rules.json`) on 127.0.0.1, so it needs no API key and makes no
+network calls. It works from any directory:
+
+```bash
+bash tests/samples/run.sh
+```
+
+It prints `PASS`, `FAIL` or `SKIP` per case and a final
+`samples: N passed, M failed, K skipped` line, and exits nonzero if any case
+fails. To also run the four pipes against the real endpoint, with looser shape
+checks, set:
+
+```bash
+JEVQ_LIVE=1 TYPESAFE_API_KEY=... bash tests/samples/run.sh
+```

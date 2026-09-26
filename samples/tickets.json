@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1001,
+    "status": "open",
+    "subject": "Dashboard loads slowly",
+    "body": "The analytics dashboard takes about 20 seconds to load every morning.",
+    "customer": "Priya Nair"
+  },
+  {
+    "id": 1002,
+    "status": "closed",
+    "subject": "Duplicate charge",
+    "body": "I was charged twice for May. Please refund the second charge.",
+    "customer": "Tom Becker"
+  },
+  {
+    "id": 1003,
+    "status": "open",
+    "subject": "Please refund my annual plan",
+    "body": "We moved to another vendor last week. Please refund the unused months of our annual plan.",
+    "customer": "Harbor Supply Co."
+  },
+  {
+    "id": 1004,
+    "status": "open",
+    "subject": "How do I export to CSV?",
+    "body": "Is there a way to export the orders table to CSV?",
+    "customer": "Lena Fischer"
+  },
+  {
+    "id": 1005,
+    "status": "closed",
+    "subject": "Want my money back",
+    "body": "The product did not work for us and I want my money back.",
+    "customer": "Carlos Ruiz"
+  },
+  {
+    "id": 1006,
+    "status": "open",
+    "subject": "Dark mode",
+    "body": "Any plans for a dark mode in the web app?",
+    "customer": "Ama Owusu"
+  },
+  {
+    "id": 1007,
+    "status": "open",
+    "subject": "Charged after cancelling",
+    "body": "I cancelled in February but was billed again in March. I want a refund for the March charge.",
+    "customer": "Mei Lin"
+  },
+  {
+    "id": 1008,
+    "status": "open",
+    "subject": "Password reset email never arrives",
+    "body": "I requested a reset three times and got nothing, not even in spam.",
+    "customer": "Olu Adeyemi"
+  },
+  {
+    "id": 1009,
+    "status": "closed",
+    "subject": "Invoice address is wrong",
+    "body": "Our invoice still shows the old office address.",
+    "customer": "Nordlicht GmbH"
+  },
+  {
+    "id": 1010,
+    "status": "open",
+    "subject": "Credit for last week's outage?",
+    "body": "The API was down for most of Tuesday. Could you apply a partial credit to next month's invoice?",
+    "customer": "Zoë Martín"
+  },
+  {
+    "id": 1011,
+    "status": "open",
+    "subject": "Add two more seats",
+    "body": "We need two more editor seats on the team plan.",
+    "customer": "Sam Okafor"
+  },
+  {
+    "id": 1012,
+    "status": "open",
+    "subject": "30-day guarantee",
+    "body": "This isn't a fit for our team. I'd like my money back under the 30-day guarantee.",
+    "customer": "Jonas Berg"
+  },
+  {
+    "id": 1013,
+    "status": "open",
+    "subject": "API rate limits",
+    "body": "What are the rate limits on the bulk endpoint?",
+    "customer": "Riya Patel"
+  },
+  {
+    "id": 1014,
+    "status": "closed",
+    "subject": "Refund processed?",
+    "body": "Just checking that the refund from ticket 1002 went through.",
+    "customer": "Tom Becker"
+  },
+  {
+    "id": 1015,
+    "status": "open",
+    "subject": "Mobile app crashes on upload",
+    "body": "Uploading a photo from the Android app closes the app immediately.",
+    "customer": "Diego Alves"
+  },
+  {
+    "id": 1016,
+    "status": "open",
+    "subject": "Billing error — refund please",
+    "body": "You billed us for 12 seats but we only have 8. Please refund the difference.",
+    "customer": "Ines Duarte"
+  },
+  {
+    "id": 1017,
+    "status": "closed",
+    "subject": "Thanks!",
+    "body": "Everything works now, thank you for the quick help.",
+    "customer": "Kofi Mensah"
+  },
+  {
+    "id": 1018,
+    "status": "open",
+    "subject": "Change billing email",
+    "body": "Please send invoices to accounts@example.com from now on.",
+    "customer": "Blue Fern Studio"
+  },
+  {
+    "id": 1019,
+    "status": "open",
+    "subject": "Webhook retries",
+    "body": "How many times do you retry a failed webhook delivery?",
+    "customer": "Anya Volkova"
+  },
+  {
+    "id": 1020,
+    "status": "closed",
+    "subject": "Cancel subscription",
+    "body": "Please cancel our subscription at the end of the term.",
+    "customer": "Pete Walsh"
+  }
+]
