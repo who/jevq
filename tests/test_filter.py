@@ -42,7 +42,7 @@ def _filter(data: bytes, argv, env=None, client=None):
 def test_keeps_values_at_or_above_threshold():
     data = b'{"id":1}\n{"id" : 2}\n{"id":3}\n{"id":4}\n'
     client = FakeClient([0.9, 0.5, 0.49, 1.0])
-    code, out, err, client = _filter(data, ["q"], client=client)
+    code, out, err, client = _filter(data, ["-v", "q"], client=client)
     assert code == 0
     assert out == b'{"id":1}\n{"id" : 2}\n{"id":4}\n'
     assert err == "jevq: read 4, emitted 3\n"
@@ -124,8 +124,11 @@ def test_api_error_exits_1_and_stops():
     assert code == 1
     assert out == b"1\n2\n"
     assert len(client.calls) == 3
-    assert err == "jevq: line 3: API error: HTTP 500 after 4 attempts\njevq: read 3, emitted 2\n"
+    assert err == "jevq: line 3: API error: HTTP 500 after 4 attempts\n"
     assert client.closed
+    code, _, err, _ = _filter(data, ["-v", "q"], client=FakeClient([0.9, 0.9], fail_at=3))
+    assert code == 1
+    assert err == "jevq: line 3: API error: HTTP 500 after 4 attempts\njevq: read 3, emitted 2\n"
 
 
 def test_model_and_url_resolution():

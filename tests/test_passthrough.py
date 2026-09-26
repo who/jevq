@@ -24,7 +24,7 @@ def test_pass_preserves_order_and_count():
 
 
 def test_pass_skips_blank_lines_and_crlf():
-    code, out, err = _pass(b'\n{"a":1}\r\n   \n{"b":2}')
+    code, out, err = _pass(b'\n{"a":1}\r\n   \n{"b":2}', argv=["--pass", "-v"])
     assert code == 0
     assert out == b'{"a":1}\n{"b":2}\n'
     assert err == "jevq: read 2, emitted 2\n"
@@ -38,7 +38,7 @@ def test_pass_non_object_values():
 
 
 def test_pass_invalid_json_exits_1_after_prior_rows():
-    code, out, err = _pass(b'{"a":1}\nnot json\n{"b":2}\n')
+    code, out, err = _pass(b'{"a":1}\nnot json\n{"b":2}\n', argv=["--pass", "-v"])
     assert code == 1
     assert out == b'{"a":1}\n'
     assert "jevq: line 2: invalid JSON:" in err
@@ -66,8 +66,8 @@ def test_question_required_without_pass():
 
 
 def test_pass_reports_counts():
-    code, _, err = _pass(b"")
+    code, _, err = _pass(b"", argv=["--pass", "-v"])
     assert code == 0
     assert err == "jevq: read 0, emitted 0\n"
-    _, _, err = _pass(b"1\n2\n3\n")
+    _, _, err = _pass(b"1\n2\n3\n", argv=["-v", "--pass"])
     assert err == "jevq: read 3, emitted 3\n"

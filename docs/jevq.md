@@ -24,6 +24,7 @@ required unless `--pass` is given.
 | `-t N`, `--threshold N` | Cutoff in [0, 1]. A value is kept when its score is at least N. Default 0.5 or `$JEV_THRESHOLD`. |
 | `-f a,b`, `--fields a,b` | Send only these top-level keys to the model. Output is still the full original value. |
 | `--model NAME` | Model to ask. Default `jev-1.13.0` (pinned) or `$JEV_MODEL`. |
+| `-v`, `--verbose` | Print the end-of-run counts and the answering model to stderr. Combines with every mode. |
 | `-h`, `--help` | Print help and exit. |
 
 ## Environment
@@ -65,7 +66,7 @@ timeout and a `User-Agent: jevq/<version>` header. The body is:
 The score is read from `answers.q.noul` in the response and must be a finite
 number. A response that is not JSON, lacks `answers.q.noul`, or holds a
 non-number there is an API error. The top-level `model` field of the response,
-when present, is recorded for the stderr report.
+when present, is recorded for the `-v` report.
 
 Calls run one at a time, in input order. There is no caching.
 
@@ -89,7 +90,8 @@ Blank input lines are skipped. Output is flushed after every line, so jevq
 works in a streaming pipe, and a downstream reader that closes early (such as
 `| head -1`) ends jevq quietly with status 0.
 
-When it finishes, including after an error, jevq writes a summary to stderr:
+On success jevq writes nothing to stderr. With `-v`/`--verbose` it writes, at
+the end of the run (also after an error):
 
 ```
 jevq: read N, emitted M
@@ -110,7 +112,7 @@ jevq: model: jev-1.13.0
 | 1 | Runtime failure: an API error (after retries) or an input line that is not valid JSON. jevq stops at that line; values already emitted stay emitted. |
 | 2 | Usage error: bad flags, missing QUESTION, an invalid threshold or `--fields` value, or `TYPESAFE_API_KEY` not set. Reported before stdin is read. |
 
-Errors go to stderr prefixed `jevq:`, for example
+Errors go to stderr prefixed `jevq:`, with or without `-v`, for example
 `jevq: line 3: invalid JSON: ...` or `jevq: line 3: API error: HTTP 401: ...`.
 
 ## Reinstalling the local tool

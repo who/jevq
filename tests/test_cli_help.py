@@ -32,6 +32,7 @@ def test_help_lists_examples(capsys):
         "-t N, --threshold N",
         "-f a,b, --fields a,b",
         "--model NAME",
+        "-v, --verbose",
         "-h, --help",
         "TYPESAFE_API_KEY",
         "JEV_MODEL",

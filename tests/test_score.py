@@ -42,7 +42,7 @@ def _score(data: bytes, argv, env=None, client=None):
 
 def test_score_emits_every_row_in_order():
     client = FakeClient([0.1, 0.9, 0.5])
-    code, out, err, client = _score(b'{"id":1}\n{"id":2}\n{"id":3}\n', ["q"], client=client)
+    code, out, err, client = _score(b'{"id":1}\n{"id":2}\n{"id":3}\n', ["-v", "q"], client=client)
     assert code == 0
     assert out == (
         b'{"score":0.1,"value":{"id":1}}\n'
@@ -95,7 +95,7 @@ def test_score_uses_fields_projection():
 
 def test_score_api_error_exits_1():
     client = FakeClient([0.2, 0.4, 0.8], fail_at=2)
-    code, out, err, client = _score(b"1\n2\n3\n", ["q"], client=client)
+    code, out, err, client = _score(b"1\n2\n3\n", ["-v", "q"], client=client)
     assert code == 1
     assert out == b'{"score":0.2,"value":1}\n'
     assert "jevq: line 2: API error: HTTP 500 after 4 attempts" in err
@@ -122,7 +122,7 @@ def test_score_non_object_value(raw):
 
 def test_score_empty_stdin():
     client = FakeClient([])
-    code, out, err, client = _score(b"", ["q"], client=client)
+    code, out, err, client = _score(b"", ["-v", "q"], client=client)
     assert code == 0 and out == b""
     assert client.calls == []
     assert err == "jevq: read 0, emitted 0\n"

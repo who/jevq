@@ -216,6 +216,29 @@ case_missing_key() {
   [[ $(log_count) -eq $before ]] || fail "request made without a key"
 }
 
+# Pipe 1 again: a successful run is silent on stderr; -v adds counts and model.
+case_quiet() {
+  local ids
+  pre_tickets >"$WORK/pre"
+  uv run --quiet jevq "$Q_REFUND" <"$WORK/pre" >"$WORK/out" 2>"$WORK/quiet.err" \
+    || fail "pipe exited nonzero"
+  [[ ! -s $WORK/quiet.err ]] || fail "stderr not empty: $(head -c 200 "$WORK/quiet.err")"
+  ids=$(jq -r .id "$WORK/out" | paste -sd, -)
+  [[ $ids == "$EXPECT_TICKETS" ]] || fail "ids $ids, expected $EXPECT_TICKETS"
+}
+
+case_verbose() {
+  local n m
+  pre_tickets >"$WORK/pre"
+  n=$(wc -l <"$WORK/pre" | tr -d ' ')
+  m=$(tr , '\n' <<<"$EXPECT_TICKETS" | wc -l | tr -d ' ')
+  uv run --quiet jevq -v "$Q_REFUND" <"$WORK/pre" >"$WORK/out" 2>"$WORK/verbose.err" \
+    || fail "pipe exited nonzero"
+  grep -Fxq "jevq: read $n, emitted $m" "$WORK/verbose.err" \
+    || fail "no counts line: $(head -c 200 "$WORK/verbose.err")"
+  grep -Fxq "jevq: model: jev-1.13.0" "$WORK/verbose.err" || fail "no model line"
+}
+
 # Live mode: real endpoint, so only shape checks.
 live_filter() {
   local pre=$1
@@ -266,6 +289,8 @@ run_case threshold case_threshold
 run_case pass case_pass
 run_case calls case_calls
 run_case missing-key case_missing_key
+run_case quiet case_quiet
+run_case verbose case_verbose
 
 if [[ $LIVE == 1 && -n $LIVE_KEY ]]; then
   unset JEV_BASE_URL

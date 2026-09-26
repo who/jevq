@@ -76,6 +76,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="default jev-1.13.0 (pinned) or $JEV_MODEL",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="print end-of-run counts (read/emitted) and the answering model to stderr",
+    )
     return parser
 
 
@@ -186,7 +192,7 @@ def run(
         code = exc.code
         return code if isinstance(code, int) else (0 if code is None else 2)
     if args.pass_:
-        return _run_pass(stdin, stdout, stderr)
+        return _run_pass(stdin, stdout, stderr, verbose=args.verbose)
     if not (args.question or "").strip():
         stderr.write("jevq: QUESTION is required unless --pass\n")
         return 2
@@ -204,7 +210,15 @@ def run(
     client = (client_factory or _default_client_factory)(api_key, model, url)
     try:
         return _run_filter(
-            client, args.question, threshold, fields, stdin, stdout, stderr, score_mode=args.score
+            client,
+            args.question,
+            threshold,
+            fields,
+            stdin,
+            stdout,
+            stderr,
+            score_mode=args.score,
+            verbose=args.verbose,
         )
     finally:
         close = getattr(client, "close", None)
@@ -222,6 +236,7 @@ def _run_filter(
     stderr: TextIO,
     *,
     score_mode: bool = False,
+    verbose: bool = False,
 ) -> int:
     read = emitted = 0
     try:
@@ -231,8 +246,9 @@ def _run_filter(
                 score = client.noul(build_state(value, fields), question)
             except JevqAPIError as exc:
                 stderr.write(f"jevq: line {line_no}: API error: {exc}\n")
-                report(stderr, read, emitted)
-                report_model(stderr, client)
+                if verbose:
+                    report(stderr, read, emitted)
+                    report_model(stderr, client)
                 return 1
             if score_mode:
                 stdout.write(format_score_line(score, raw))
@@ -243,15 +259,17 @@ def _run_filter(
                 emitted += 1
     except InputError as exc:
         stderr.write(f"jevq: {exc}\n")
+        if verbose:
+            report(stderr, read, emitted)
+            report_model(stderr, client)
+        return 1
+    if verbose:
         report(stderr, read, emitted)
         report_model(stderr, client)
-        return 1
-    report(stderr, read, emitted)
-    report_model(stderr, client)
     return 0
 
 
-def _run_pass(stdin: BinaryIO, stdout: BinaryIO, stderr: TextIO) -> int:
+def _run_pass(stdin: BinaryIO, stdout: BinaryIO, stderr: TextIO, *, verbose: bool = False) -> int:
     read = emitted = 0
     try:
         for _line_no, raw, _value in iter_values(stdin):
@@ -260,9 +278,11 @@ def _run_pass(stdin: BinaryIO, stdout: BinaryIO, stderr: TextIO) -> int:
             emitted += 1
     except InputError as exc:
         stderr.write(f"jevq: {exc}\n")
-        report(stderr, read, emitted)
+        if verbose:
+            report(stderr, read, emitted)
         return 1
-    report(stderr, read, emitted)
+    if verbose:
+        report(stderr, read, emitted)
     return 0
 
 

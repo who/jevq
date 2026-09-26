@@ -75,35 +75,35 @@ def test_flag_beats_env_override():
 
 
 def test_stderr_model_logged():
-    code, _, err, _ = invoke(["q"], {}, [answer(0.9, "jev-1.13.0"), answer(0.1, "jev-1.13.0")])
+    code, _, err, _ = invoke(["-v", "q"], {}, [answer(0.9, "jev-1.13.0"), answer(0.1, "jev-1.13.0")])
     assert code == 0
     assert err.splitlines() == ["jevq: read 2, emitted 1", "jevq: model: jev-1.13.0"]
 
 
 def test_stderr_model_logged_distinct_in_order():
-    _, _, err, _ = invoke(["--score", "q"], {}, [answer(0.9, "m-b"), answer(0.1, "m-a")])
+    _, _, err, _ = invoke(["--score", "-v", "q"], {}, [answer(0.9, "m-b"), answer(0.1, "m-a")])
     assert err.splitlines()[-1] == "jevq: model: m-b, m-a"
 
 
 def test_stderr_model_not_reported():
-    _, _, err, _ = invoke(["q"], {}, [answer(0.9), {"answers": {"q": {"noul": 0.1}}, "model": 7}])
+    _, _, err, _ = invoke(["-v", "q"], {}, [answer(0.9), {"answers": {"q": {"noul": 0.1}}, "model": 7}])
     assert err.splitlines()[-1] == "jevq: model: not reported"
 
 
 def test_stderr_model_logged_after_api_error():
     stdin = LINES + b'{"id":3}\n'
     responses = [answer(0.9, "jev-1.13.0"), answer(0.1, "jev-1.13.0"), {"nope": 1}]
-    code, _, err, _ = invoke(["q"], {}, responses, stdin=stdin)
+    code, _, err, _ = invoke(["-v", "q"], {}, responses, stdin=stdin)
     assert code == 1
     assert err.splitlines()[-1] == "jevq: model: jev-1.13.0"
 
 
 def test_stderr_model_absent_without_responses():
-    code, _, err, _ = invoke(["q"], {}, [], stdin=b"")
+    code, _, err, _ = invoke(["-v", "q"], {}, [], stdin=b"")
     assert code == 0
     assert "model" not in err
     stdout, stderr = io.BytesIO(), io.StringIO()
-    assert run(["--pass"], io.BytesIO(LINES), stdout, stderr, {}) == 0
+    assert run(["--pass", "-v"], io.BytesIO(LINES), stdout, stderr, {}) == 0
     assert "model" not in stderr.getvalue()
 
 
