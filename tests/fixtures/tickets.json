@@ -1,0 +1,8 @@
+[
+  {"id": 1, "status": "open", "subject": "Refund for double charge", "body": "I was billed twice this month. Please refund the extra charge.", "customer": "ana@example.com"},
+  {"id": 2, "status": "closed", "subject": "Password reset", "body": "Reset link worked, thanks.", "customer": "ben@example.com"},
+  {"id": 3, "status": "open", "subject": "Export to CSV", "body": "Is there a way to export my reports to CSV?", "customer": "chen@example.com"},
+  {"id": 4, "status": "open", "subject": "Order for the café", "body": "Our café needs twelve more units before Friday.", "customer": "dora@example.com"},
+  {"id": 5, "status": "closed", "subject": "Wrong invoice address", "body": "Fixed after the update, closing.", "customer": "eli@example.com"},
+  {"id": 6, "status": "open", "subject": "App keeps crashing", "body": "This is the third time today. I am furious.", "customer": "fay@example.com", "meta": {"platform": "ios", "version": "4.2.1", "tags": ["crash", "urgent"]}}
+]
